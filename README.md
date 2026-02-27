@@ -1,129 +1,147 @@
 ![](assets/douban.png)
-# Douban sync for GitHub Actions
+# doumark
 
-[GitHub Action](https://github.com/features/actions) for douban movie/book/music marked data sync to csv file or notion automatically.
+[![Build Status](https://github.com/haeward/doumark/actions/workflows/release.yml/badge.svg)](https://github.com/haeward/doumark/actions/workflows/release.yml)
 
-## Input variables
+Douban movie/book/music/game marked data sync for:
+- GitHub Actions (`uses: haeward/doumark@...`)
+- Docker/CLI (`docker run ...`)
+- Drone pipelines (`image: haeward/doumark`)
 
-See [action.yml](action.yml) for more detailed information.
-- id: Douban ID
-- type: Douban data Type, enum value: movie, book, music, game default `movie`
-- status: Douban data status, enum value: mark, doing, done, default `done`
-- format: Douban data store format, enum value：csv, json, notion, neodb default `csv`
-- dir: Target where douban data sync to. It's a file path for `csv` and `json` format, and a notion database id for `notion` format. 
-- notion_token: Notion Integration Token
-- neodb_token: NeoDB Access Token
+> Migration update (2026-02-27): `drone-doumark` has been merged into this repository. New changes should go to `haeward/doumark`.
 
-## Usage
+## Configuration
 
-### Sync to CSV file
+Core fields:
+- `id`: Douban user ID
+- `type`: `movie`, `book`, `music`, `game` (default `movie`)
+- `status`: `mark`, `doing`, `done` (default `done`)
+- `format`: `csv`, `json`, `notion`, `neodb` (default `csv`)
+- `dir`: output path for `csv/json`, Notion database ID for `notion`
+- `notion_token`: Notion integration token
+- `neodb_token`: NeoDB access token
+
+Environment variable compatibility is preserved:
+- `INPUT_*` for GitHub Actions
+- `PLUGIN_*` and `DOUBAN_*` for Docker/Drone
+
+Examples:
+- `INPUT_ID` / `PLUGIN_ID` / `DOUBAN_ID`
+- `INPUT_FORMAT` / `PLUGIN_FORMAT` / `DOUBAN_FORMAT`
+- `INPUT_NOTION_TOKEN` / `PLUGIN_NOTION_TOKEN` / `DOUBAN_NOTION_TOKEN`
+- `INPUT_NEODB_TOKEN` / `PLUGIN_NEODB_TOKEN` / `DOUBAN_NEODB_TOKEN`
+
+## GitHub Actions
+
+See [action.yml](action.yml) for all inputs.
+
+### Sync to CSV
 
 ```yml
-# .github/workflows/douban.yml
 name: douban
-on: 
+on:
   schedule:
-  - cron: "30 * * * *"
+    - cron: "30 * * * *"
 
 jobs:
   douban:
-    name: Douban mark data sync
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-    - name: movie
-      uses: lizheming/doumark-action@master
-      with:
-        id: lizheming
-        type: movie
-        format: csv
-        dir: ./data/douban
+      - name: movie
+        uses: haeward/doumark@master
+        with:
+          id: lizheming
+          type: movie
+          format: csv
+          dir: ./data/douban
 
-    - name: music
-      uses: lizheming/doumark-action@master
-      with:
-        id: lizheming
-        type: music
-        format: csv
-        dir: ./data/douban
-  
-    - name: Commit
-      uses: EndBug/add-and-commit@v8
-      with:
-        message: 'chore: update douban data'
-        add: './data/douban'
+      - name: music
+        uses: haeward/doumark@master
+        with:
+          id: lizheming
+          type: music
+          format: csv
+          dir: ./data/douban
+
+      - uses: EndBug/add-and-commit@v9
+        with:
+          message: "chore: update douban data"
+          add: "./data/douban"
 ```
+
 ### Sync to Notion
 
-1. Create a Notion Integration at [My Integrations - Notion](https://www.notion.so/my-integrations). And here you can get `NOTION_TOKEN`.
-    - Associated workspace: You should select workspace which you should store.
-    - Capabilities: Both of `Read`, `Update` and `Insert` content abilities shoud checked.
-2. Duplicate database by click <kbd>Duplicate</kbd> at the top right postion of <[Movie](https://lizheming.notion.site/d8a363df3ca84ca89ef52208ad874e3b) | [Book](https://lizheming.notion.site/488c17fd89fb424591f68f7cfb029020) | [Music](https://lizheming.notion.site/d80ca60213c54ab99c4376caec0be9d7)> page.
-3. Share database to your Integration by inviting it with <kbd>Share</kbd> - <kbd>Invite</kbd> at the top right postion. And you can get database id, the first random string from url.
-
 ```yml
-# .github/workflows/douban.yml
-name: douban
-on: 
-  schedule:
-  - cron: "30 * * * *"
-
-jobs:
-  douban:
-    name: Douban mark data sync
-    runs-on: ubuntu-latest
-    steps:
-    - name: movie
-      uses: lizheming/doumark-action@master
-      with:
-        id: lizheming
-        type: movie
-        format: notion
-        dir: xxxx
-        notion_token: ${{ secrets.notion_token }}
-        
-    - name: music
-      uses: lizheming/doumark-action@master
-      with:
-        id: lizheming
-        type: music
-        format: notion
-        dir: xxxx
-        notion_token: ${{ secrets.notion_token }}
+- name: sync notion
+  uses: haeward/doumark@master
+  with:
+    id: lizheming
+    type: movie
+    format: notion
+    dir: <notion_database_id>
+    notion_token: ${{ secrets.NOTION_TOKEN }}
 ```
 
 ### Sync to NeoDB
 
+```yml
+- name: sync neodb
+  uses: haeward/doumark@master
+  with:
+    id: lizheming
+    type: movie
+    format: neodb
+    neodb_token: ${{ secrets.NEODB_TOKEN }}
+```
 
-1. Create a NeoDB Access Token at [NeoDB API Developer Console](https://neodb.social/developer/).
+## Docker and Drone
+
+### Docker
+
+```bash
+docker run --rm \
+  -e PLUGIN_ID=lizheming \
+  -e PLUGIN_TYPE=movie \
+  -e PLUGIN_FORMAT=csv \
+  -e PLUGIN_DIR=./data/douban \
+  haeward/doumark:latest
+```
+
+### Drone
 
 ```yml
-# .github/workflows/douban.yml
-name: douban
-on: 
-  schedule:
-  - cron: "30 * * * *"
+kind: pipeline
+type: docker
+name: default
 
-jobs:
-  douban:
-    name: Douban mark data sync
-    runs-on: ubuntu-latest
-    steps:
-    - name: movie
-      uses: lizheming/doumark-action@master
-      with:
-        id: lizheming
-        type: movie
-        format: neodb
-        neodb_token: ${{ secrets.neodb_token }}
-        
-    - name: music
-      uses: lizheming/doumark-action@master
-      with:
-        id: lizheming
-        type: music
-        format: neodb
-        neodb_token: ${{ secrets.neodb_token }}
+steps:
+  - name: douban
+    image: haeward/doumark:latest
+    settings:
+      id: lizheming
+      type: movie
+      format: csv
+      dir: ./data/douban
 ```
+
+## Output Notes
+
+- CSV output includes `type` classification:
+  - `movie` -> `Movies`
+  - `tv` -> `Series/Anime` (classified as `Anime` only if `genres` contains `动画`)
+- JSON incremental cursor uses `star_time`; historical rows can fall back to `create_time`.
+
+## Development
+
+```bash
+npm ci
+npm run build
+```
+
+## Migration from `drone-doumark`
+
+- Runtime behavior and supported env names are unchanged.
+- Source code now lives in one repo: `haeward/doumark`.
+- Legacy image tags can be kept temporarily, but new releases should use `haeward/doumark`.
