@@ -1,13 +1,13 @@
 name: "Douban mark sync"
 author: "Austin Lee"
-description: "Douban movie/book/music marked data sync to csv or notion action"
+description: "Douban movie/book/music/game marked data sync to csv/json/notion/neodb"
 
 inputs:
   id:
     description: "Your douban user_id"
     required: true
   type:
-    description: "Douban data Type, enum value: `movie`, `book`, `music`, default `movie`"
+    description: "Douban data Type, enum value: `movie`, `book`, `music`, `game`, default `movie`"
     default: movie
     required: false
   status:
@@ -15,7 +15,7 @@ inputs:
     default: done
     required: false
   format:
-    description: "Douban data store format, enum value：`csv`, `json`, `notion`, default `csv`"
+    description: "Douban data store format, enum value：`csv`, `json`, `notion`, `neodb`, default `csv`"
     default: csv
     required: false
   dir:
