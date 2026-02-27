@@ -33,7 +33,11 @@ module.exports = {
   
     // 读取之前的 mark 记录
     const local = await store.get();
-    const localLastestMarkTime = !Array.isArray(local) || !local.length ? 0 : local[0].star_time;
+    let localLastestMarkTime = 0;
+    if (Array.isArray(local) && local.length) {
+      const latestMarkTime = Number(local[0].star_time);
+      localLastestMarkTime = Number.isFinite(latestMarkTime) ? latestMarkTime : 0;
+    }
   
     // 获取新的历史记录
     const appendSubjects = [];

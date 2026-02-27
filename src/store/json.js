@@ -29,7 +29,14 @@ module.exports = class FileStore {
   }
 
   format(item) {
-    return item;
+    const starTime = item?.star_time ?? item?.create_time;
+    if (starTime === undefined) {
+      return item;
+    }
+    return {
+      ...item,
+      star_time: starTime,
+    };
   }
 
   async get() {
@@ -38,7 +45,17 @@ module.exports = class FileStore {
     this._data = await this.parse(text);
     return this._data.map(item => ({
       ...item,
-      star_time: dayjs(item.star_time, 'YYYY-MM-DD HH:mm:ss').valueOf()
+      star_time: (() => {
+        const starTime = item?.star_time ?? item?.create_time;
+        if (typeof starTime === 'number') {
+          return Number.isFinite(starTime) ? starTime : 0;
+        }
+        let value = dayjs(starTime, 'YYYY-MM-DD HH:mm:ss').valueOf();
+        if (!Number.isFinite(value)) {
+          value = dayjs(starTime).valueOf();
+        }
+        return Number.isFinite(value) ? value : 0;
+      })()
     }));
   }
 

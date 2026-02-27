@@ -16,6 +16,7 @@ Drone plugin for Douban movie/book/music/game marked data sync automatically.
 - `PLUGIN_FORMAT`: Douban data store format, enum value：csv, json, notion, neodb default `csv`
 - `DOUBAN_FORMAT`: Same as `PLUGIN_FORMAT`
 - `PLUGIN_DIR`: Target where douban data sync to. It's a file path for `csv` and `json` format, and a notion database id for `notion` format. 
+- For `json` format, `star_time` is used as the incremental cursor and historical records can fall back to `create_time` on read.
 - `DOUBAN_DIR`: Same as `PLUGIN_DIR`
 - `PLUGIN_NOTION_TOKEN`: Notion Integration Token
 - `DOUBAN_NOTION_TOKEN`: Same as `PLUGIN_NOTION_TOKEN`
@@ -26,6 +27,8 @@ Drone plugin for Douban movie/book/music/game marked data sync automatically.
 ## How to use
 
 ### Sync to CSV file
+
+CSV output includes a `type` column: `movie -> Movies`, `tv -> Series/Anime` (classified as `Anime` only when `genres` contains `动画`). Historical rows are conservatively backfilled to `Anime` only when this condition is met.
 
 Copy as `.drone.yml` file into your repo. Then set a `@houly` schedule cronjob at drone web page.
 
