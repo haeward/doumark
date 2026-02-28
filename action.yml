@@ -1,10 +1,10 @@
-name: "Douban mark sync"
-author: "Austin Lee"
+name: "Douban data sync"
+author: "Charles Moore"
 description: "Douban movie/book/music/game marked data sync to csv/json/notion/neodb"
 
 inputs:
   id:
-    description: "Your douban user_id"
+    description: "douban user_id"
     required: true
   type:
     description: "Douban data Type, enum value: `movie`, `book`, `music`, `game`, default `movie`"
