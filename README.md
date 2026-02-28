@@ -1,18 +1,17 @@
-![](assets/douban.png)
 # doumark
+
+![Douban](assets/douban.png)
 
 [![Build Status](https://github.com/haeward/doumark/actions/workflows/release.yml/badge.svg)](https://github.com/haeward/doumark/actions/workflows/release.yml)
 
 Douban movie/book/music/game marked data sync for:
-- GitHub Actions (`uses: haeward/doumark@...`)
-- Docker/CLI (`docker run ...`)
-- Drone pipelines (`image: haeward/doumark`)
 
-> Migration update (2026-02-27): `drone-doumark` has been merged into this repository. New changes should go to `haeward/doumark`.
+- GitHub Actions (`uses: haeward/doumark@...`)
 
 ## Configuration
 
 Core fields:
+
 - `id`: Douban user ID
 - `type`: `movie`, `book`, `music`, `game` (default `movie`)
 - `status`: `mark`, `doing`, `done` (default `done`)
@@ -21,15 +20,16 @@ Core fields:
 - `notion_token`: Notion integration token
 - `neodb_token`: NeoDB access token
 
-Environment variable compatibility is preserved:
-- `INPUT_*` for GitHub Actions
-- `PLUGIN_*` and `DOUBAN_*` for Docker/Drone
+Environment variables for GitHub Actions:
+
+- `INPUT_*`
 
 Examples:
-- `INPUT_ID` / `PLUGIN_ID` / `DOUBAN_ID`
-- `INPUT_FORMAT` / `PLUGIN_FORMAT` / `DOUBAN_FORMAT`
-- `INPUT_NOTION_TOKEN` / `PLUGIN_NOTION_TOKEN` / `DOUBAN_NOTION_TOKEN`
-- `INPUT_NEODB_TOKEN` / `PLUGIN_NEODB_TOKEN` / `DOUBAN_NEODB_TOKEN`
+
+- `INPUT_ID`
+- `INPUT_FORMAT`
+- `INPUT_NOTION_TOKEN`
+- `INPUT_NEODB_TOKEN`
 
 ## GitHub Actions
 
@@ -50,17 +50,17 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: movie
-        uses: haeward/doumark@master
+        uses: haeward/doumark@main
         with:
-          id: lizheming
+          id: haeward
           type: movie
           format: csv
           dir: ./data/douban
 
       - name: music
-        uses: haeward/doumark@master
+        uses: haeward/doumark@main
         with:
-          id: lizheming
+          id: haeward
           type: music
           format: csv
           dir: ./data/douban
@@ -75,9 +75,9 @@ jobs:
 
 ```yml
 - name: sync notion
-  uses: haeward/doumark@master
+  uses: haeward/doumark@main
   with:
-    id: lizheming
+    id: haeward
     type: movie
     format: notion
     dir: <notion_database_id>
@@ -88,42 +88,12 @@ jobs:
 
 ```yml
 - name: sync neodb
-  uses: haeward/doumark@master
+  uses: haeward/doumark@main
   with:
-    id: lizheming
+    id: haeward
     type: movie
     format: neodb
     neodb_token: ${{ secrets.NEODB_TOKEN }}
-```
-
-## Docker and Drone
-
-### Docker
-
-```bash
-docker run --rm \
-  -e PLUGIN_ID=lizheming \
-  -e PLUGIN_TYPE=movie \
-  -e PLUGIN_FORMAT=csv \
-  -e PLUGIN_DIR=./data/douban \
-  haeward/doumark:latest
-```
-
-### Drone
-
-```yml
-kind: pipeline
-type: docker
-name: default
-
-steps:
-  - name: douban
-    image: haeward/doumark:latest
-    settings:
-      id: lizheming
-      type: movie
-      format: csv
-      dir: ./data/douban
 ```
 
 ## Output Notes
@@ -139,9 +109,3 @@ steps:
 npm ci
 npm run build
 ```
-
-## Migration from `drone-doumark`
-
-- Runtime behavior and supported env names are unchanged.
-- Source code now lives in one repo: `haeward/doumark`.
-- Legacy image tags can be kept temporarily, but new releases should use `haeward/doumark`.
