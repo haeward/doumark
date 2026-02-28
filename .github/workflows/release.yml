@@ -36,12 +36,6 @@ jobs:
           version=$(node -e "console.log(require('./package.json').version)")
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -57,7 +51,5 @@ jobs:
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           push: true
           tags: |
-            haeward/doumark:latest
-            haeward/doumark:${{ steps.build.outputs.version }}
             ghcr.io/${{ github.repository_owner }}/doumark:latest
             ghcr.io/${{ github.repository_owner }}/doumark:${{ steps.build.outputs.version }}
