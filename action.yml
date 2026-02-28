@@ -15,7 +15,7 @@ inputs:
     default: done
     required: false
   format:
-    description: "Douban data store format, enum value：`csv`, `json`, `notion`, `neodb`, default `csv`"
+    description: "Douban data store format, enum value: `csv`, `json`, `notion`, `neodb`, default `csv`"
     default: csv
     required: false
   dir:
